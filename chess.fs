@@ -19,7 +19,7 @@ type chessPiece(color : Color) =
   /// [[(1,0); (2,0);...]; [(-1,0); (-2,0)]...]. Runs must be
   /// ordered such that the first in a list is closest to the piece
   /// at hand.      
-  abstract member candiateRelativeMoves : Position list list
+  abstract member candidateRelativeMoves : Position list list
   /// Available moves and neighbours ([(1,0); (2,0);...], [p1; p2])
   abstract member availableMoves : Board -> (Position list * chessPiece list)
   default this.availableMoves (board : Board) : (Position list * chessPiece list) =
@@ -98,7 +98,7 @@ and Board () =
       | Some p ->
         let convertNWrap = 
           (relativeToAbsolute p) >> this.getVacantNOccupied
-        let vacantPieceLists = List.map convertNWrap piece.candiateRelativeMoves
+        let vacantPieceLists = List.map convertNWrap piece.candidateRelativeMoves
         // Extract and merge lists of vacant squares
         let vacant = List.collect fst vacantPieceLists
         // Extract and merge lists of first obstruction pieces and filter out own pieces
