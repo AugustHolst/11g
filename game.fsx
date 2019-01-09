@@ -51,7 +51,6 @@ type Game(whiteP : Player, blackP : Player) =
         let move = str.Split [|' '|]
         let fromRankNFile = moveToIndex move.[0]
         let toRankNFile = moveToIndex move.[1]
-        printfn "fromRankNFile = %A     |       toRankNFile = %A" fromRankNFile toRankNFile 
         let fromSquare = board.[fst fromRankNFile, snd fromRankNFile]
         let toSquare = board.[fst toRankNFile, snd toRankNFile]
         if Option.isNone fromSquare then
