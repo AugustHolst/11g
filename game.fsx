@@ -19,7 +19,7 @@ type Human(color : Color) =
             elif input = "quit" then
                 exit 1
             else 
-                printf "\nInvalid move, try again: "
+                printf "\ninvalid, try again: "
                 let newInput = System.Console.ReadLine()
                 nM newInput
         nM input
@@ -60,7 +60,7 @@ type Game(whiteP : Player, blackP : Player) =
             codeStringToMove (player.nextMove input) player
         elif Option.isNone toSquare then
             let piece = fromSquare.Value
-            if List.contains toRankNFile (fst (piece.availableMoves board)) then
+            if List.contains toRankNFile (fst (piece.availableMoves board)) && piece.color = player.color then
                 board.move fromRankNFile toRankNFile
             else
                 printf "\ninvalid move, try again: "
@@ -69,7 +69,7 @@ type Game(whiteP : Player, blackP : Player) =
         else
             let piece = fromSquare.Value
             let capturedPiece = toSquare.Value
-            if List.contains toRankNFile (fst (piece.availableMoves board)) || List.contains capturedPiece (snd (piece.availableMoves board)) then
+            if (List.contains toRankNFile (fst (piece.availableMoves board)) || List.contains capturedPiece (snd (piece.availableMoves board))) && piece.color = player.color then
                 board.move fromRankNFile toRankNFile
             else
                 printf "\ninvalid move, try again: "
