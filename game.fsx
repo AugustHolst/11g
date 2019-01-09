@@ -1,5 +1,3 @@
-#load "chess.fs"
-#load "pieces.fs"
 open System.Text.RegularExpressions
 open Chess
 open Pieces
@@ -16,8 +14,10 @@ type Human(color : Color) =
     override this.nextMove(input : string) : string =
         let movePattern = "[a-h][1-8] [a-h][1-8]"
         let rec nM input =
-            if Regex.IsMatch(input, movePattern) || input = "quit" then
+            if Regex.IsMatch(input, movePattern) then
                 input
+            elif input = "quit" then
+                exit 1
             else 
                 printf "\nInvalid move, try again: "
                 let newInput = System.Console.ReadLine()
@@ -47,33 +47,47 @@ type Game(whiteP : Player, blackP : Player) =
         | 'g' -> (rankIndex, 6)
         | 'h' -> (rankIndex, 7)
     
-    let rec codeStringToMove(str : string) =
+    let rec codeStringToMove(str : string) (player : Player) =
         let move = str.Split [|' '|]
         let fromRankNFile = moveToIndex move.[0]
         let toRankNFile = moveToIndex move.[1]
         printfn "fromRankNFile = %A     |       toRankNFile = %A" fromRankNFile toRankNFile 
-        (fromRankNFile, toRankNFile)
+        let fromSquare = board.[fst fromRankNFile, snd fromRankNFile]
+        let toSquare = board.[fst toRankNFile, snd toRankNFile]
+        if Option.isNone fromSquare then
+            printf "\ninvalid move, try again: "
+            let input = System.Console.ReadLine()
+            codeStringToMove (player.nextMove input) player
+        elif Option.isNone toSquare then
+            let piece = fromSquare.Value
+            if List.contains toRankNFile (fst (piece.availableMoves board)) then
+                board.move fromRankNFile toRankNFile
+            else
+                printf "\ninvalid move, try again: "
+                let input = System.Console.ReadLine()
+                codeStringToMove (player.nextMove input) player
+        else
+            let piece = fromSquare.Value
+            let capturedPiece = toSquare.Value
+            if List.contains toRankNFile (fst (piece.availableMoves board)) || List.contains capturedPiece (snd (piece.availableMoves board)) then
+                board.move fromRankNFile toRankNFile
+            else
+                printf "\ninvalid move, try again: "
+                let input = System.Console.ReadLine()
+                codeStringToMove (player.nextMove input) player
 
     let rec turn(player : Player) =
         printf "%A player's move: " player.color
         let input = System.Console.ReadLine()
-        let move = codeStringToMove (player.nextMove input)
-        let moveFrom = fst move
-        let moveTo = snd move
-
-        if Option.isNone board.[fst moveFrom, snd moveFrom] then 
-            
-        
+        codeStringToMove (player.nextMove input) player
         printfn "%A" board
-
-    member this.whitePlayer = whiteP
-    member this.blackPlayer = blackP
-
+        if player.color = White then
+            turn blackP
+        else 
+            turn whiteP
     member this.run() =
         printfn "%A" board
-        turn(this.whitePlayer)
+        turn(whiteP)
 
-
-///testing purposes
 let game = Game(Human(White), Human(Black))
 game.run()
